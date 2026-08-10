@@ -1,100 +1,59 @@
 # GitHub to Local Backup
 
-**Realiza copias de seguridad automáticas de repositorios de GitHub en Windows hacia un disco local, una unidad USB, un recurso de red o un NAS.**
+**Copia automáticamente repositorios de GitHub a un disco local, USB, recurso de red o NAS en Windows.**
 
 [English](README.md) · [Nederlands](README.nl.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Español](README.es.md)
 
-## Descripción
-
-GitHub to Local Backup es una herramienta ligera de PowerShell para Windows que crea copias completas tipo espejo de los repositorios de un usuario u organización de GitHub. El origen y el destino se eligen durante la instalación.
-
 ## Funciones
 
-- Usuario u organización de GitHub como origen
-- Carpeta de destino configurable
-- Discos locales, unidades USB, unidades asignadas y rutas UNC
-- Repositorios públicos y privados
-- Copias completas con `git clone --mirror`
-- Actualización automática de espejos existentes
-- Tarea semanal mediante el Programador de tareas de Windows
-- Las ejecuciones omitidas se vuelven a intentar más tarde
-- Icono de estado en la bandeja del sistema
-- Protección contra múltiples iconos duplicados
-- Un destino temporalmente no disponible no se considera una copia dañada
-- Archivos de estado y registro
+- uno o varios usuarios u organizaciones de GitHub como origen
+- destino de copia configurable
+- discos locales, USB, unidades mapeadas y rutas UNC
+- repositorios públicos, privados o todos
+- copias completas con `git clone --mirror`
+- actualizaciones con `git remote update --prune`
+- comprobación de integridad con `git fsck --full`
+- repositorios eliminados de GitHub se mueven a `_archived` en lugar de borrarse
+- rotación automática de registros
+- tarea semanal de Windows con `StartWhenAvailable`
+- copia opcional al iniciar sesión
+- icono de bandeja con protección de instancia única
+- configuración modificable después de instalar
+- comprobación de Git y GitHub CLI, con instalación opcional mediante `winget`
 
-## Icono de estado
-
-- 🟢 **Verde** — copia reciente y correcta
-- 🟠 **Naranja** — en ejecución, antigua, nunca ejecutada o destino no disponible
-- 🔴 **Rojo** — error real de copia
-
-## Requisitos
-
-- Windows 10 o Windows 11
-- Windows PowerShell 5.1 o superior
-- Git
-- GitHub CLI (`gh`)
-- Inicio de sesión único mediante:
-
-```powershell
-gh auth login
-```
-
-## Instalación interactiva
-
-Abra PowerShell en la carpeta del proyecto extraído:
+## Instalación
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
 .\Install.ps1
 ```
 
-El instalador solicita:
-
-- **Origen** — usuario u organización de GitHub, por ejemplo `Techraym`
-- **Destino** — carpeta local o ruta de red, por ejemplo `D:\Backups\GitHub` o `\\NAS\Backups\GitHub`
-
-## Instalación con parámetros
-
 ```powershell
 .\Install.ps1 `
-    -Source "Techraym" `
-    -Destination "\\NAS\Backups\GitHub" `
-    -RunNow
+  -Source "mi-cuenta","mi-organizacion" `
+  -Destination "D:\GitHubBackup" `
+  -RunNow
 ```
 
-## Visibilidad de repositorios
+## Destino no disponible
 
-Para copiar solo repositorios públicos:
-
-```powershell
-.\Install.ps1 -Source "ejemplo" -Destination "D:\GitHub" -Visibility public
-```
-
-Valores admitidos: `all`, `public`, `private`.
-
-## ¿Por qué copias espejo?
-
-`git clone --mirror` conserva referencias Git, ramas, etiquetas e historial del repositorio, no solo los archivos actuales.
-
-## Destino temporalmente no disponible
-
-Si un NAS o recurso de red no está accesible, la ejecución se omite de forma segura. La copia existente no se modifica, el icono pasa a naranja y la siguiente ejecución programada lo vuelve a intentar.
+Si el NAS o recurso de red no está disponible, la copia se omite de forma segura. El icono se vuelve naranja y la siguiente ejecución programada lo intenta de nuevo.
 
 ## Configuración
 
+Desde **Settings** en el menú de la bandeja o en:
+
 ```text
-%LOCALAPPDATA%\GitHubNASBackup\config.json
+%LOCALAPPDATA%\GitHubToLocalBackup\config.json
 ```
 
-## Contribuir
+## Desinstalación
 
-Consulte [CONTRIBUTING.md](CONTRIBUTING.md).
+```powershell
+.\Uninstall.ps1
+```
 
-## Seguridad
-
-Consulte [SECURITY.md](SECURITY.md).
+Las copias existentes no se eliminan.
 
 ## Licencia
 
