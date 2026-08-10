@@ -1,0 +1,67 @@
+name: Bug report
+description: Meld een reproduceerbaar probleem met installatie, backup of tray-status
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Bedankt voor het melden. Verwijder tokens, wachtwoorden en andere gevoelige gegevens uit logs voordat je ze plaatst.
+  - type: input
+    id: version
+    attributes:
+      label: Versie / commit
+      placeholder: v1.0.0 of commit SHA
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows-versie
+      placeholder: Windows 11 24H2
+    validations:
+      required: true
+  - type: input
+    id: powershell
+    attributes:
+      label: PowerShell-versie
+      placeholder: 5.1.x of 7.x
+    validations:
+      required: true
+  - type: dropdown
+    id: destination
+    attributes:
+      label: Type backupdoel
+      options:
+        - Lokale schijf
+        - USB/externe schijf
+        - Mapped network drive
+        - UNC-netwerkpad
+        - Anders
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Stappen om te reproduceren
+      description: Beschrijf zo precies mogelijk wat je deed.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Verwacht gedrag
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Werkelijk gedrag
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevante logregels
+      description: Verwijder credentials, tokens en privé-informatie.
+      render: text
