@@ -1,68 +1,64 @@
-# GitHub NAS Backup
+# GitHub to Local Backup
 
-Een eenvoudige Windows-tool om GitHub-repositories automatisch lokaal, op een externe schijf of op een NAS te back-uppen.
+**Automatically back up GitHub repositories to a local disk, USB drive, network share or NAS on Windows.**
 
-## Wat de gebruiker zelf kiest
+[English](README.md) · [Nederlands](README.nl.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Español](README.es.md)
 
-Tijdens de installatie worden deze waarden gevraagd:
+## Overview
 
-- **Bron**: GitHub-gebruiker of organisatie, bijvoorbeeld `Techraym`
-- **Doel**: elke lokale map, externe schijf of netwerkshare, bijvoorbeeld:
-  - `D:\Backups\GitHub`
-  - `Y:\Backup Data\GitHub`
-  - `\\NAS\Backups\GitHub`
+GitHub to Local Backup is a lightweight PowerShell tool for Windows that creates complete Git mirror backups of repositories from a GitHub user or organization. The source account and destination are chosen during installation.
 
-De instellingen worden opgeslagen in:
+## Features
 
-```text
-%LOCALAPPDATA%\GitHubNASBackup\config.json
-```
+- GitHub user or organization as source
+- User-defined destination
+- Local disks, USB drives, mapped drives and UNC network paths
+- Public and private repositories
+- Complete `git clone --mirror` backups
+- Existing mirrors updated automatically
+- Weekly Windows Task Scheduler job
+- Missed scheduled runs are retried when Windows can run the task again
+- System tray status icon
+- Single-instance protection against duplicate tray icons
+- Temporarily unavailable destination is treated as a retryable state, not a corrupted backup
+- Local and destination-side status/log files
 
-## Functies
+## Status icon
 
-- GitHub gebruiker of organisatie als bron
-- vrij instelbare doelmap
-- lokale schijf, USB-schijf, mapped drive of UNC-netwerkpad
-- publieke en private repositories
-- volledige `git clone --mirror` backup
-- bestaande repositories automatisch bijwerken
-- automatische wekelijkse Windows Taakplanner-run
-- gemiste taak wordt later opnieuw geprobeerd
-- systeemvak/tray-status
-- single-instance beveiliging tegen dubbele tray-iconen
-- doel niet bereikbaar = oranje status, geen echte backupfout
-- log- en statusbestanden
+- 🟢 **Green** — backup is recent and successful
+- 🟠 **Orange** — running, overdue, not yet run, or destination unavailable
+- 🔴 **Red** — actual backup error
 
-## Statusicoon
+## Requirements
 
-- 🟢 **groen** — backup recent en succesvol
-- 🟠 **oranje** — bezig, te oud, nog niet uitgevoerd of doel niet bereikbaar
-- 🔴 **rood** — echte backupfout
-
-## Vereisten
-
-- Windows 10 of 11
-- Windows PowerShell 5.1 of nieuwer
+- Windows 10 or Windows 11
+- Windows PowerShell 5.1 or newer
 - Git
 - GitHub CLI (`gh`)
-- eenmalig aanmelden met:
+- One-time GitHub CLI authentication:
 
 ```powershell
 gh auth login
 ```
 
-## Installeren — interactief
+## Interactive installation
 
-Open PowerShell in de uitgepakte map:
+Open PowerShell in the downloaded/extracted project directory:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
 .\Install.ps1
 ```
 
-De installer vraagt daarna zelf om bron en doel.
+The installer asks for:
 
-## Installeren — direct met parameters
+- **Source** — GitHub user or organization, for example `Techraym`
+- **Destination** — local folder or network location, for example:
+  - `D:\Backups\GitHub`
+  - `Y:\Backup Data\GitHub`
+  - `\\NAS\Backups\GitHub`
+
+## Installation with parameters
 
 ```powershell
 .\Install.ps1 `
@@ -71,22 +67,24 @@ De installer vraagt daarna zelf om bron en doel.
     -RunNow
 ```
 
-Of lokaal:
+For a local backup:
 
 ```powershell
 .\Install.ps1 `
-    -Source "mijn-github-naam" `
+    -Source "my-github-name" `
     -Destination "D:\GitHubBackup" `
     -RunNow
 ```
 
-## Alleen publieke repositories
+## Repository visibility
+
+Back up only public repositories:
 
 ```powershell
-.\Install.ps1 -Source "voorbeeld" -Destination "D:\GitHub" -Visibility public
+.\Install.ps1 -Source "example" -Destination "D:\GitHub" -Visibility public
 ```
 
-Mogelijke waarden:
+Supported values:
 
 ```text
 all
@@ -94,12 +92,12 @@ public
 private
 ```
 
-## Backupstructuur
+## Backup structure
 
-Voor bron `Techraym`:
+For source `Techraym`:
 
 ```text
-<doel>\
+<destination>\
 ├── _logs\
 │   ├── github-backup.log
 │   └── status.json
@@ -109,32 +107,40 @@ Voor bron `Techraym`:
     └── Repo3.git\
 ```
 
-## Waarom mirror-backups?
+## Why mirror backups?
 
-`git clone --mirror` bewaart niet alleen de huidige bestanden, maar ook Git-references, branches, tags en repositorygeschiedenis.
+`git clone --mirror` preserves Git references, branches, tags and repository history, not only the currently checked-out files.
 
-## Doel tijdelijk niet bereikbaar
+## Destination temporarily unavailable
 
-Als een laptop onderweg is of de NAS/netwerkschijf niet bereikbaar is:
+If a laptop is away from the home/company network or a NAS/network share is unavailable:
 
-- de backup wordt overgeslagen;
-- de bestaande backup wordt niet gewijzigd;
-- het tray-icoon wordt oranje;
-- dit wordt niet als corrupte/mislukte backup behandeld;
-- de volgende geplande run probeert opnieuw.
+- the backup is skipped safely;
+- the existing backup is not modified;
+- the tray icon becomes orange;
+- this is not treated as a damaged backup;
+- the next scheduled run tries again.
 
-## Handmatig starten
+## Manual backup
 
-Rechtsklik op het tray-icoon en kies **Nu back-uppen**.
+Right-click the tray icon and choose **Run backup now** / **Nu back-uppen**, or run the installed backup script manually.
 
-## Bijdragen
+## Configuration
 
-Zie [CONTRIBUTING.md](CONTRIBUTING.md).
+Configuration is stored in:
 
-## Beveiliging
+```text
+%LOCALAPPDATA%\GitHubNASBackup\config.json
+```
 
-Zie [SECURITY.md](SECURITY.md) voor het melden van beveiligingsproblemen.
+## Contributing
 
-## Licentie
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-MIT — zie [LICENSE](LICENSE).
+## Security
+
+See [SECURITY.md](SECURITY.md) to report security issues.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
