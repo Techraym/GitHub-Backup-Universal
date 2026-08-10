@@ -1,100 +1,59 @@
 # GitHub to Local Backup
 
-**GitHub-Repositories unter Windows automatisch auf eine lokale Festplatte, USB-Festplatte, Netzwerkfreigabe oder NAS sichern.**
+**Automatische lokale Backups von GitHub-Repositories auf Festplatte, USB, Netzwerkfreigabe oder NAS unter Windows.**
 
 [English](README.md) · [Nederlands](README.nl.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Español](README.es.md)
 
-## Übersicht
-
-GitHub to Local Backup ist ein leichtgewichtiges PowerShell-Tool für Windows, das vollständige Git-Mirror-Backups der Repositories eines GitHub-Benutzers oder einer Organisation erstellt. Quelle und Ziel werden bei der Installation frei gewählt.
-
 ## Funktionen
 
-- GitHub-Benutzer oder Organisation als Quelle
-- Frei wählbarer Zielordner
-- Lokale Laufwerke, USB-Laufwerke, eingebundene Laufwerke und UNC-Netzwerkpfade
-- Öffentliche und private Repositories
-- Vollständige `git clone --mirror` Backups
-- Automatische Aktualisierung bestehender Mirrors
-- Wöchentliche Ausführung über die Windows-Aufgabenplanung
-- Verpasste Ausführungen werden später erneut versucht
-- Statussymbol im Infobereich
-- Single-Instance-Schutz gegen doppelte Tray-Symbole
-- Vorübergehend nicht verfügbares Ziel gilt nicht als beschädigtes Backup
-- Status- und Logdateien lokal und am Backupziel
+- ein oder mehrere GitHub-Benutzer/Organisationen als Quelle
+- frei wählbares Backup-Ziel
+- lokale Laufwerke, USB, gemappte Laufwerke und UNC-Pfade
+- öffentliche, private oder alle Repositories
+- vollständige `git clone --mirror` Backups
+- Updates mit `git remote update --prune`
+- Integritätsprüfung mit `git fsck --full`
+- entfernte GitHub-Repositories werden nach `_archived` verschoben statt gelöscht
+- Log-Rotation
+- wöchentliche Windows-Aufgabe mit `StartWhenAvailable`
+- optionales Backup bei Windows-Anmeldung
+- Tray-Status mit Single-Instance-Schutz
+- Einstellungen nach der Installation änderbar
+- Prüfung auf Git und GitHub CLI, optional Installation über `winget`
 
-## Statussymbol
-
-- 🟢 **Grün** — Backup aktuell und erfolgreich
-- 🟠 **Orange** — läuft, veraltet, noch nicht ausgeführt oder Ziel nicht verfügbar
-- 🔴 **Rot** — echter Backupfehler
-
-## Voraussetzungen
-
-- Windows 10 oder Windows 11
-- Windows PowerShell 5.1 oder neuer
-- Git
-- GitHub CLI (`gh`)
-- Einmalige Anmeldung mit:
-
-```powershell
-gh auth login
-```
-
-## Interaktive Installation
-
-PowerShell im entpackten Projektordner öffnen:
+## Installation
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
 .\Install.ps1
 ```
 
-Der Installer fragt nach:
-
-- **Quelle** — GitHub-Benutzer oder Organisation, z. B. `Techraym`
-- **Ziel** — lokaler Ordner oder Netzwerkpfad, z. B. `D:\Backups\GitHub` oder `\\NAS\Backups\GitHub`
-
-## Installation mit Parametern
-
 ```powershell
 .\Install.ps1 `
-    -Source "Techraym" `
-    -Destination "\\NAS\Backups\GitHub" `
-    -RunNow
+  -Source "mein-account","meine-organisation" `
+  -Destination "D:\GitHubBackup" `
+  -RunNow
 ```
 
-## Sichtbarkeit
+## Temporär nicht verfügbares Ziel
 
-Nur öffentliche Repositories sichern:
+Ist NAS oder Netzwerkfreigabe nicht erreichbar, wird der Lauf sicher übersprungen. Das Tray-Symbol wird orange und der nächste geplante Lauf versucht es erneut.
 
-```powershell
-.\Install.ps1 -Source "beispiel" -Destination "D:\GitHub" -Visibility public
-```
+## Einstellungen
 
-Mögliche Werte: `all`, `public`, `private`.
-
-## Warum Mirror-Backups?
-
-`git clone --mirror` bewahrt Git-Referenzen, Branches, Tags und die Repository-Historie, nicht nur die aktuell ausgecheckten Dateien.
-
-## Ziel vorübergehend nicht verfügbar
-
-Ist ein NAS oder eine Netzwerkfreigabe vorübergehend nicht erreichbar, wird der Lauf sicher übersprungen. Das vorhandene Backup bleibt unverändert, das Tray-Symbol wird orange und der nächste geplante Lauf versucht es erneut.
-
-## Konfiguration
+Über **Settings** im Tray-Menü oder in:
 
 ```text
-%LOCALAPPDATA%\GitHubNASBackup\config.json
+%LOCALAPPDATA%\GitHubToLocalBackup\config.json
 ```
 
-## Mitwirken
+## Deinstallation
 
-Siehe [CONTRIBUTING.md](CONTRIBUTING.md).
+```powershell
+.\Uninstall.ps1
+```
 
-## Sicherheit
-
-Siehe [SECURITY.md](SECURITY.md).
+Vorhandene Backup-Daten werden nicht gelöscht.
 
 ## Lizenz
 
