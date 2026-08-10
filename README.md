@@ -6,22 +6,27 @@
 
 ## Overview
 
-GitHub to Local Backup is a lightweight PowerShell tool for Windows that creates complete Git mirror backups of repositories from a GitHub user or organization. The source account and destination are chosen during installation.
+GitHub to Local Backup is a lightweight Windows PowerShell tool that creates complete Git mirror backups from one or more GitHub users or organizations. The destination can be a local disk, USB drive, mapped drive or UNC network path.
 
 ## Features
 
-- GitHub user or organization as source
-- User-defined destination
+- One or multiple GitHub users/organizations as sources
+- User-defined backup destination
 - Local disks, USB drives, mapped drives and UNC network paths
-- Public and private repositories
+- Public, private or all repositories
 - Complete `git clone --mirror` backups
-- Existing mirrors updated automatically
-- Weekly Windows Task Scheduler job
-- Missed scheduled runs are retried when Windows can run the task again
-- System tray status icon
-- Single-instance protection against duplicate tray icons
-- Temporarily unavailable destination is treated as a retryable state, not a corrupted backup
-- Local and destination-side status/log files
+- Existing mirrors updated with `git remote update --prune`
+- Optional repository integrity verification using `git fsck --full`
+- Repositories that disappear from GitHub are moved safely to `_archived` instead of being deleted
+- Automatic log rotation
+- Weekly Windows Task Scheduler job with `StartWhenAvailable`
+- Optional backup at Windows logon
+- System tray status icon with single-instance protection
+- One-time success/error/offline notifications
+- Temporarily unavailable destination is a retryable state, not a backup failure
+- Settings can be changed after installation from the tray menu
+- Git and GitHub CLI dependency checks; optional installation through `winget`
+- GitHub Actions validation for both normal and embedded PowerShell scripts
 
 ## Status icon
 
@@ -33,13 +38,10 @@ GitHub to Local Backup is a lightweight PowerShell tool for Windows that creates
 
 - Windows 10 or Windows 11
 - Windows PowerShell 5.1 or newer
-- Git
+- Git for Windows
 - GitHub CLI (`gh`)
-- One-time GitHub CLI authentication:
 
-```powershell
-gh auth login
-```
+If Git or GitHub CLI is missing and `winget` is available, the installer can offer to install it.
 
 ## Interactive installation
 
@@ -50,15 +52,11 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\Install.ps1
 ```
 
-The installer asks for:
-
-- **Source** — GitHub user or organization, for example `Techraym`
-- **Destination** — local folder or network location, for example:
-  - `D:\Backups\GitHub`
-  - `Y:\Backup Data\GitHub`
-  - `\\NAS\Backups\GitHub`
+The installer asks for the GitHub source(s), destination and missing dependencies when needed.
 
 ## Installation with parameters
+
+One source:
 
 ```powershell
 .\Install.ps1 `
@@ -67,41 +65,64 @@ The installer asks for:
     -RunNow
 ```
 
-For a local backup:
+Multiple sources:
 
 ```powershell
 .\Install.ps1 `
-    -Source "my-github-name" `
+    -Source "my-user","my-organization" `
     -Destination "D:\GitHubBackup" `
     -RunNow
 ```
 
-## Repository visibility
+Automatically install missing Git/GitHub CLI dependencies with winget:
 
-Back up only public repositories:
+```powershell
+.\Install.ps1 `
+    -Source "my-user" `
+    -Destination "D:\GitHubBackup" `
+    -InstallDependencies
+```
+
+Disable the post-backup integrity check if desired:
+
+```powershell
+.\Install.ps1 `
+    -Source "my-user" `
+    -Destination "D:\GitHubBackup" `
+    -SkipIntegrityCheck
+```
+
+## Repository visibility
 
 ```powershell
 .\Install.ps1 -Source "example" -Destination "D:\GitHub" -Visibility public
 ```
 
-Supported values:
+Supported values: `all`, `public`, `private`.
 
-```text
-all
-public
-private
+## Scheduling
+
+Default: every Sunday at 02:00.
+
+```powershell
+.\Install.ps1 `
+    -Source "my-user" `
+    -Destination "D:\GitHubBackup" `
+    -DayOfWeek Friday `
+    -Time "23:30" `
+    -RunAtLogon
 ```
 
 ## Backup structure
-
-For source `Techraym`:
 
 ```text
 <destination>\
 ├── _logs\
 │   ├── github-backup.log
 │   └── status.json
-└── Techraym\
+├── _archived\
+│   └── <source>\
+└── <source>\
     ├── Repo1.git\
     ├── Repo2.git\
     └── Repo3.git\
@@ -113,25 +134,29 @@ For source `Techraym`:
 
 ## Destination temporarily unavailable
 
-If a laptop is away from the home/company network or a NAS/network share is unavailable:
+If a laptop is away from the home/company network or a NAS/network share is unavailable, the backup is skipped safely, the tray icon becomes orange and the next scheduled run tries again.
 
-- the backup is skipped safely;
-- the existing backup is not modified;
-- the tray icon becomes orange;
-- this is not treated as a damaged backup;
-- the next scheduled run tries again.
+## Settings after installation
+
+Right-click the tray icon and choose **Settings**. Configuration is stored in:
+
+```text
+%LOCALAPPDATA%\GitHubToLocalBackup\config.json
+```
 
 ## Manual backup
 
-Right-click the tray icon and choose **Run backup now** / **Nu back-uppen**, or run the installed backup script manually.
+Right-click the tray icon and choose **Back up now**.
 
-## Configuration
+## Uninstall
 
-Configuration is stored in:
+Run:
 
-```text
-%LOCALAPPDATA%\GitHubNASBackup\config.json
+```powershell
+.\Uninstall.ps1
 ```
+
+The application files and scheduled task are removed. Existing backup data is not deleted.
 
 ## Contributing
 
@@ -139,7 +164,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) to report security issues.
+See [SECURITY.md](SECURITY.md).
 
 ## License
 
